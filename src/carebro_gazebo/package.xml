@@ -1,0 +1,26 @@
+<?xml version="1.0"?>
+<?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
+<package format="3">
+  <name>carebro_gazebo</name>
+  <version>0.1.0</version>
+  <description>Gazebo worlds (obstacles, warehouse, house) and the simulation launch file for CareBro.</description>
+  <maintainer email="vedantkulkarni252@gmail.com">Vedant Kulkarni</maintainer>
+  <license>MIT</license>
+
+  <buildtool_depend>ament_cmake</buildtool_depend>
+
+  <exec_depend>carebro_description</exec_depend>
+  <exec_depend>carebro_controller</exec_depend>
+  <exec_depend>ros_gz_sim</exec_depend>
+  <exec_depend>ros_gz_bridge</exec_depend>
+  <exec_depend>robot_state_publisher</exec_depend>
+  <exec_depend>rviz2</exec_depend>
+  <exec_depend>ros2launch</exec_depend>
+  <exec_depend>xacro</exec_depend>
+  <exec_depend condition="$ROS_DISTRO == humble">ign_ros2_control</exec_depend>
+  <exec_depend condition="$ROS_DISTRO != humble">gz_ros2_control</exec_depend>
+
+  <export>
+    <build_type>ament_cmake</build_type>
+  </export>
+</package>

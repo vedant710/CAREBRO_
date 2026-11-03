@@ -1,0 +1,13 @@
+object_detector_node:
+  ros__parameters:
+    image_topic: /camera/color/image_raw
+    model_path: ""          # e.g. models/yolov8n.onnx
+    confidence: 0.5
+
+nl_command_node:
+  ros__parameters:
+    command_topic: /ai/command
+
+semantic_navigator_node:
+  ros__parameters:
+    stop_distance_m: 0.6

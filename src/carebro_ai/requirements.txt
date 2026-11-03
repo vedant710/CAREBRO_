@@ -1,0 +1,9 @@
+# Optional Python libraries for your AI nodes. Nodes run under the SYSTEM python
+# (/usr/bin/python3), so install them there, not in a conda env:
+#   /usr/bin/python3 -m pip install --user -r requirements.txt
+# If cv_bridge complains about numpy 2.x, pin:  numpy<2
+#
+# ultralytics        # YOLO
+# onnxruntime        # lightweight inference (CPU)
+# torch              # only if you need it - large
+# openai / anthropic # only if you use a hosted LLM; keep API keys out of git

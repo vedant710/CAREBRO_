@@ -1,0 +1,79 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="carebro">
+
+    <gazebo reference="wheel_right_link">
+        <mu1>100000000000000.0</mu1>
+        <mu2>100000000000000.0</mu2>
+        <kp>1000000000000.0</kp>
+        <kd>10.0</kd>
+        <mindepth>0.001</mindepth>
+        <maxvel>0.1</maxvel>
+        <fdir1>1 0 0</fdir1>
+    </gazebo>
+    <gazebo reference="wheel_left_link">
+        <mu1>100000000000000.0</mu1>
+        <mu2>100000000000000.0</mu2>
+        <kp>1000000000000.0</kp>
+        <kd>10.0</kd>
+        <mindepth>0.001</mindepth>
+        <maxvel>0.1</maxvel>
+        <fdir1>1 0 0</fdir1>
+    </gazebo>
+    <gazebo reference="caster_front_link">
+        <mu1>0.1</mu1>
+        <mu2>0.1</mu2>
+        <kp>1000000.0</kp>
+        <kd>100.0</kd>
+        <mindepth>0.001</mindepth>
+        <maxvel>0.1</maxvel>
+    </gazebo>
+    <gazebo reference="caster_rear_link">
+        <mu1>0.1</mu1>
+        <mu2>0.1</mu2>
+        <kp>1000000.0</kp>
+        <kd>100.0</kd>
+        <mindepth>0.001</mindepth>
+        <maxvel>0.1</maxvel>
+    </gazebo>
+
+    <!-- ros2_control plugin: Humble -> Fortress (ign_ros2_control), Jazzy -> Harmonic (gz_ros2_control) -->
+    <gazebo>
+        <xacro:if value="$(arg is_ignition)">
+            <plugin filename="ign_ros2_control-system" name="ign_ros2_control::IgnitionROS2ControlPlugin">
+                <parameters>$(find carebro_controller)/config/carebro_controller.yaml</parameters>
+            </plugin>
+        </xacro:if>
+        <xacro:unless value="$(arg is_ignition)">
+            <plugin filename="gz_ros2_control-system" name="gz_ros2_control::GazeboSimROS2ControlPlugin">
+                <parameters>$(find carebro_controller)/config/carebro_controller.yaml</parameters>
+            </plugin>
+        </xacro:unless>
+    </gazebo>
+
+    <!-- Ground-truth pose of the robot in the Gazebo world frame -> /ground_truth/odom.
+         Only for evaluating drift of odometry / EKF; never feed it to SLAM or Nav2.
+         The pose is in the *world* frame, so it differs from the map frame by the
+         spawn pose (see README_CHANGES.md). -->
+    <gazebo>
+        <xacro:if value="$(arg is_ignition)">
+            <plugin filename="ignition-gazebo-odometry-publisher-system"
+                    name="ignition::gazebo::systems::OdometryPublisher">
+                <odom_frame>world</odom_frame>
+                <robot_base_frame>base_footprint</robot_base_frame>
+                <odom_topic>ground_truth/odom</odom_topic>
+                <odom_publish_frequency>50</odom_publish_frequency>
+                <dimensions>2</dimensions>
+            </plugin>
+        </xacro:if>
+        <xacro:unless value="$(arg is_ignition)">
+            <plugin filename="gz-sim-odometry-publisher-system"
+                    name="gz::sim::systems::OdometryPublisher">
+                <odom_frame>world</odom_frame>
+                <robot_base_frame>base_footprint</robot_base_frame>
+                <odom_topic>ground_truth/odom</odom_topic>
+                <odom_publish_frequency>50</odom_publish_frequency>
+                <dimensions>2</dimensions>
+            </plugin>
+        </xacro:unless>
+    </gazebo>
+</robot>

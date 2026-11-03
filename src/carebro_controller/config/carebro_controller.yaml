@@ -1,0 +1,58 @@
+controller_manager:
+  ros__parameters:
+    update_rate: 100
+    use_sim_time: true
+
+    joint_state_broadcaster:
+      type: joint_state_broadcaster/JointStateBroadcaster
+
+    carebro_controller:
+      type: diff_drive_controller/DiffDriveController
+
+carebro_controller:
+  ros__parameters:
+    use_stamped_vel: true
+    left_wheel_names: ["wheel_left_joint"]
+    right_wheel_names: ["wheel_right_joint"]
+    publish_rate: 50.0
+    # Covariances matter for sensor fusion (robot_localization weights sensors by them).
+    # Unused axes (z, roll, pitch) get a huge value; tune x / yaw to your measured drift.
+    pose_covariance_diagonal: [0.01, 0.01, 1.0e6, 1.0e6, 1.0e6, 0.03]
+    twist_covariance_diagonal: [0.01, 0.01, 1.0e6, 1.0e6, 1.0e6, 0.03]
+
+    # Wheel radius is 0.033 m. The wheel *collision* spheres sit at y = +-0.085
+    # (joint at +-0.07 plus a 0.015 offset), so the effective track is 0.17 m.
+    wheel_radius: 0.033
+    wheel_separation: 0.17
+    # DRIFT EXPERIMENTS: set e.g. left_wheel_radius_multiplier: 1.03 (3 % wheel error)
+    # to make wheel odometry drift on purpose, then show the EKF correcting it.
+    left_wheel_radius_multiplier: 1.0
+    right_wheel_radius_multiplier: 1.0
+    wheel_separation_multiplier: 1.0
+
+    cmd_vel_timeout: 0.5
+    base_frame_id: base_footprint
+    odom_frame_id: odom
+    enable_odom_tf: true
+    publish_limited_velocities: true
+    publish_wheel_data: true
+
+    linear:
+      x:
+        has_velocity_limits: true
+        max_velocity: 0.5
+        min_velocity: -0.3
+        has_acceleration_limits: true
+        max_acceleration: 0.8
+        min_acceleration: -0.8
+        has_jerk_limits: false
+
+    angular:
+      z:
+        has_velocity_limits: true
+        max_velocity: 1.5
+        min_velocity: -1.5
+        has_acceleration_limits: true
+        max_acceleration: 2.0
+        min_acceleration: -2.0
+        has_jerk_limits: false

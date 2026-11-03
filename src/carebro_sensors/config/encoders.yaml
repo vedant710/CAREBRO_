@@ -1,0 +1,8 @@
+# 1320 ~= 11 pulses x 4 (quadrature) x 30:1 gearbox, a common small DC motor.
+# Set to your real motor's value when you move to hardware.
+encoder_sim:
+  ros__parameters:
+    left_joint: wheel_left_joint
+    right_joint: wheel_right_joint
+    ticks_per_rev: 1320
+    noise_std_ticks: 0.0

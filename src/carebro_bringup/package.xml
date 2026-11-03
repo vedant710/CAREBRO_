@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+<package format="3">
+  <name>carebro_bringup</name>
+  <version>0.1.0</version>
+  <description>One launch file that starts CareBro sim, navigation and the optional layers.</description>
+  <maintainer email="vedantkulkarni252@gmail.com">Vedant Kulkarni</maintainer>
+  <license>MIT</license>
+
+  <buildtool_depend>ament_cmake</buildtool_depend>
+
+  <exec_depend>carebro_gazebo</exec_depend>
+  <exec_depend>carebro_navigation</exec_depend>
+  <exec_depend>carebro_sensors</exec_depend>
+  <exec_depend>carebro_sensor_fusion</exec_depend>
+  <exec_depend>carebro_perception</exec_depend>
+  <exec_depend>carebro_ai</exec_depend>
+
+  <export>
+    <build_type>ament_cmake</build_type>
+  </export>
+</package>

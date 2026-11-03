@@ -1,0 +1,49 @@
+<?xml version="1.0"?>
+<!-- 6-axis IMU at the centre of the robot. Gazebo topic imu/data_raw is bridged to
+     /imu/data_raw (sensor_msgs/Imu) by carebro_gazebo/launch/sim.launch.py.
+     Needs the Imu system plugin in the world (already added to all three worlds).
+     Noise values are illustrative MEMS-grade numbers: replace with your IMU's datasheet. -->
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="carebro">
+
+    <link name="imu_link">
+        <inertial>
+            <origin rpy="0 0 0" xyz="0 0 0"/>
+            <mass value="0.01"/>
+            <inertia ixx="1.0e-6" ixy="0.0" ixz="0.0"
+                     iyy="1.0e-6" iyz="0.0"
+                     izz="1.0e-6"/>
+        </inertial>
+    </link>
+
+    <joint name="imu_joint" type="fixed">
+        <parent link="base_link"/>
+        <child link="imu_link"/>
+        <origin rpy="0 0 0" xyz="0 0 0.02"/>
+    </joint>
+
+    <gazebo reference="imu_link">
+        <sensor name="imu_sensor" type="imu">
+            <always_on>true</always_on>
+            <update_rate>100</update_rate>
+            <topic>imu/data_raw</topic>
+            <xacro:if value="$(arg is_ignition)">
+                <ignition_frame_id>imu_link</ignition_frame_id>
+            </xacro:if>
+            <xacro:unless value="$(arg is_ignition)">
+                <gz_frame_id>imu_link</gz_frame_id>
+            </xacro:unless>
+            <imu>
+                <angular_velocity>
+                    <x><noise type="gaussian"><mean>0.0</mean><stddev>0.0003</stddev><bias_mean>0.00005</bias_mean><bias_stddev>0.00002</bias_stddev></noise></x>
+                    <y><noise type="gaussian"><mean>0.0</mean><stddev>0.0003</stddev><bias_mean>0.00005</bias_mean><bias_stddev>0.00002</bias_stddev></noise></y>
+                    <z><noise type="gaussian"><mean>0.0</mean><stddev>0.0003</stddev><bias_mean>0.00005</bias_mean><bias_stddev>0.00002</bias_stddev></noise></z>
+                </angular_velocity>
+                <linear_acceleration>
+                    <x><noise type="gaussian"><mean>0.0</mean><stddev>0.02</stddev><bias_mean>0.02</bias_mean><bias_stddev>0.005</bias_stddev></noise></x>
+                    <y><noise type="gaussian"><mean>0.0</mean><stddev>0.02</stddev><bias_mean>0.02</bias_mean><bias_stddev>0.005</bias_stddev></noise></y>
+                    <z><noise type="gaussian"><mean>0.0</mean><stddev>0.02</stddev><bias_mean>0.02</bias_mean><bias_stddev>0.005</bias_stddev></noise></z>
+                </linear_acceleration>
+            </imu>
+        </sensor>
+    </gazebo>
+</robot>

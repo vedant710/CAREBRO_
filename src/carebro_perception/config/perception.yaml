@@ -1,0 +1,15 @@
+# Parameters for your nodes. Node names must match the names you give your nodes.
+mono_vision_node:
+  ros__parameters:
+    image_topic: /camera/color/image_raw
+    camera_info_topic: /camera/color/camera_info
+
+depth_vision_node:
+  ros__parameters:
+    depth_topic: /camera/depth/image_rect_raw
+    camera_info_topic: /camera/color/camera_info
+    max_range_m: 6.0
+
+obstacle_cloud_node:
+  ros__parameters:
+    points_topic: /camera/depth/color/points

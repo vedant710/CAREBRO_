@@ -1,0 +1,93 @@
+<?xml version="1.0"?>
+<!-- Simulated Intel RealSense D435-style RGB-D camera on the front of the robot.
+     ONE Gazebo "rgbd_camera" sensor gives colour (monocular vision), depth and a point
+     cloud, all pixel-aligned. Bridged (see carebro_gazebo/launch/sim.launch.py) to the
+     topic names the real realsense2_camera driver uses:
+       /camera/color/image_raw        sensor_msgs/Image       (rgb8)
+       /camera/color/camera_info      sensor_msgs/CameraInfo
+       /camera/depth/image_rect_raw   sensor_msgs/Image       (32FC1, metres; real camera: 16UC1 mm)
+       /camera/depth/color/points     sensor_msgs/PointCloud2
+     Rendering cost grows fast with resolution / rate: lower them on a slow machine. -->
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="carebro">
+
+    <xacro:property name="cam_width"  value="640"/>
+    <xacro:property name="cam_height" value="480"/>
+    <xacro:property name="cam_rate"   value="15"/>
+    <xacro:property name="cam_hfov"   value="1.2113"/>   <!-- 69.4 deg, D435 RGB -->
+    <xacro:property name="cam_near"   value="0.3"/>      <!-- D435 min depth ~0.3 m -->
+    <xacro:property name="cam_far"    value="6.0"/>
+    <!-- Frame the images / cloud are stamped with. Gazebo points are x-forward, so
+         camera_link is the safe default. If the cloud looks rotated in RViz, try
+         camera_color_optical_frame instead. -->
+    <xacro:property name="cam_frame"  value="camera_link"/>
+
+    <!-- body: 25 mm deep (x), 90 mm wide (y), 25 mm high (z), like a D435 -->
+    <link name="camera_link">
+        <visual>
+            <geometry><box size="0.025 0.09 0.025"/></geometry>
+            <material name="camera_grey"><color rgba="0.15 0.15 0.15 1.0"/></material>
+        </visual>
+        <inertial>
+            <origin rpy="0 0 0" xyz="0 0 0"/>
+            <mass value="0.072"/>
+            <inertia ixx="4.0e-5" ixy="0.0" ixz="0.0"
+                     iyy="1.0e-5" iyz="0.0"
+                     izz="4.0e-5"/>
+        </inertial>
+    </link>
+
+    <!-- mounted on the front face of the base, 8 cm above ground level -->
+    <joint name="camera_joint" type="fixed">
+        <parent link="base_link"/>
+        <child link="camera_link"/>
+        <origin rpy="0 0 0" xyz="0.082 0 0.05"/>
+    </joint>
+
+    <!-- optical frames (z forward, x right, y down) for vision / depth libraries -->
+    <link name="camera_color_optical_frame"/>
+    <joint name="camera_color_optical_joint" type="fixed">
+        <parent link="camera_link"/>
+        <child link="camera_color_optical_frame"/>
+        <origin rpy="-1.5707963 0 -1.5707963" xyz="0 0 0"/>
+    </joint>
+
+    <link name="camera_depth_optical_frame"/>
+    <joint name="camera_depth_optical_joint" type="fixed">
+        <parent link="camera_link"/>
+        <child link="camera_depth_optical_frame"/>
+        <origin rpy="-1.5707963 0 -1.5707963" xyz="0 0 0"/>
+    </joint>
+
+    <gazebo reference="camera_link">
+        <sensor name="realsense_rgbd" type="rgbd_camera">
+            <always_on>true</always_on>
+            <visualize>false</visualize>
+            <update_rate>${cam_rate}</update_rate>
+            <topic>camera</topic>
+            <xacro:if value="$(arg is_ignition)">
+                <ignition_frame_id>${cam_frame}</ignition_frame_id>
+            </xacro:if>
+            <xacro:unless value="$(arg is_ignition)">
+                <gz_frame_id>${cam_frame}</gz_frame_id>
+            </xacro:unless>
+            <camera>
+                <horizontal_fov>${cam_hfov}</horizontal_fov>
+                <image>
+                    <width>${cam_width}</width>
+                    <height>${cam_height}</height>
+                    <format>R8G8B8</format>
+                </image>
+                <clip>
+                    <near>${cam_near}</near>
+                    <far>${cam_far}</far>
+                </clip>
+                <depth_camera>
+                    <clip>
+                        <near>${cam_near}</near>
+                        <far>${cam_far}</far>
+                    </clip>
+                </depth_camera>
+            </camera>
+        </sensor>
+    </gazebo>
+</robot>
