@@ -272,7 +272,7 @@ sudo apt install -y \
 The repository root becomes the workspace, so `src/` lands in the right place:
 
 ```bash
-git clone https://github.com/vedant710/CAREBRO_.git ~/carebro_ws
+git clone https://github.com/<your-username>/carebro.git ~/carebro_ws
 cd ~/carebro_ws
 ```
 
