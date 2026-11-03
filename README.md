@@ -1,11 +1,13 @@
-# CareBro
+# CAREBRO_
 
-**An open-source ROS 2 + Gazebo platform for a small differential-drive care robot: simulation, SLAM and Nav2 navigation, simulated sensors (LiDAR, IMU, RGB-D camera, wheel encoders), sensor fusion, and plug-in slots for perception and AI.**
+**An open-source assistive robot platform to help people with physical disabilities live more independently.**
 
-CareBro is a modular workspace. The simulation, navigation and sensor layers work out of the box. The fusion, perception and AI layers ship as well-documented node templates, so you can drop in your own algorithms (EKF, visual odometry, YOLO, LLM-based commands) without touching the rest of the stack.
+CAREBRO_ is a ROS 2 workspace for a small autonomous mobile robot that can navigate a home, understand its surroundings and, in future, respond to requests such as "go to the kitchen" or "bring me my water." It is built **simulation-first**, so anyone can develop and test ideas without owning hardware.
+
+> **Safety notice:** CAREBRO_ is a research and education project. It is **not a medical device** and has not been validated for use around people. Test in simulation and under supervision before any real-world use.
 
 <!-- Replace with your own media once ready -->
-> 🎥 **Demo videos:** _coming soon_
+> **Demo videos:** _coming soon_
 >
 > | Simulation + SLAM | Autonomous navigation | Sensor fusion | AI object detection |
 > |---|---|---|---|
@@ -15,45 +17,62 @@ CareBro is a modular workspace. The simulation, navigation and sensor layers wor
 
 ## Table of contents
 
-1. [Features](#features)
-2. [Architecture](#architecture)
-3. [Repository structure](#repository-structure)
-4. [Requirements](#requirements)
-5. [Installation](#installation)
-6. [Quick start](#quick-start)
-7. [Launch options](#launch-options)
-8. [Topics and sensors](#topics-and-sensors)
-9. [Package reference](#package-reference)
-10. [Sensor fusion and drift experiments](#sensor-fusion-and-drift-experiments)
-11. [Writing your own perception and AI nodes](#writing-your-own-perception-and-ai-nodes)
-12. [Verifying your setup](#verifying-your-setup)
-13. [Project status](#project-status)
-14. [Troubleshooting](#troubleshooting)
-15. [Contributing](#contributing)
-16. [License](#license)
+1. [Why this project exists](#why-this-project-exists)
+2. [Project goals](#project-goals)
+3. [What works today](#what-works-today)
+4. [Architecture](#architecture)
+5. [Repository structure](#repository-structure)
+6. [Requirements](#requirements)
+7. [Installation](#installation)
+8. [Quick start](#quick-start)
+9. [Launch options](#launch-options)
+10. [Topics and sensors](#topics-and-sensors)
+11. [Package reference](#package-reference)
+12. [Sensor fusion and drift experiments](#sensor-fusion-and-drift-experiments)
+13. [Writing your own perception and AI nodes](#writing-your-own-perception-and-ai-nodes)
+14. [Verifying your setup](#verifying-your-setup)
+15. [Roadmap](#roadmap)
+16. [Troubleshooting](#troubleshooting)
+17. [Contributing](#contributing)
+18. [License](#license)
 
 ---
 
-## Features
+## Why this project exists
 
-- **Three ready-made Gazebo worlds:** `obstacles` (arena with boxes), `warehouse`, and `house` (rooms and furniture).
-- **Differential-drive robot** described in URDF/Xacro with `ros2_control` (`diff_drive_controller`).
-- **Simulated sensors**, named like real hardware so your code ports without changes:
-  - 2D LiDAR (`/scan`)
-  - 6-axis IMU at 100 Hz with modelled noise and bias
-  - Intel RealSense D435-style RGB-D camera (colour, depth, camera info, point cloud)
-  - Wheel encoders as integer ticks (1320 ticks/rev), with optional noise
-  - Ground-truth odometry for evaluation
-- **SLAM and navigation:** `slam_toolbox` for live mapping, plus Nav2 for planning and control. Also supports navigating on a saved map with AMCL.
-- **Sensor fusion:** a ready-to-run `robot_localization` EKF that fuses wheel odometry and IMU, plus stub nodes for your own filters and drift evaluation.
-- **Perception and AI slots:** documented node templates with defined input and output topics.
-- **One launch file** (`carebro_bringup`) with switches for every layer.
+Many people with limited mobility depend on others for everyday tasks such as fetching objects, moving around the home or calling for help. Commercial assistive robots are expensive and closed. CAREBRO_ aims to be an affordable, open and hackable alternative that researchers, students, hobbyists, caregivers and people with lived experience of disability can build on together.
+
+## Project goals
+
+- Reliable autonomous **indoor navigation** (SLAM + Nav2)
+- Safe **obstacle handling** using LiDAR and an RGB-D camera
+- **Voice and natural-language control**
+- **Object recognition** for fetch-and-carry tasks
+- **Low-cost hardware** that others can replicate
+- A modular design where each capability can be improved independently
+
+---
+
+## What works today
+
+| Component | Status |
+|---|---|
+| Robot model, three Gazebo worlds, diff-drive controller | Working |
+| Simulated LiDAR, IMU, RGB-D camera, wheel encoders, ground truth | Implemented |
+| Live SLAM + Nav2, and navigation on a saved map | Implemented |
+| `robot_localization` EKF (wheel odometry + IMU) | Implemented |
+| One-command bringup with layer switches | Implemented |
+| Fusion nodes (5), perception nodes (3), AI nodes (3) | Templates: **contributions welcome** |
+| Jazzy / Gazebo Harmonic | Code path exists, untested |
+| Real hardware | Planned |
+
+The navigation and sensor foundation is in place. The perception and AI layers are where most of the assistive features will be built, and they are ready for contributors.
 
 ---
 
 ## Architecture
 
-CareBro is organised in layers. Each layer is its own ROS 2 package and can be switched on or off independently from the bringup launch file.
+CAREBRO_ is organised in layers. Each layer is its own ROS 2 package and can be switched on or off independently from the bringup launch file.
 
 ```mermaid
 flowchart TB
@@ -267,12 +286,12 @@ sudo apt install -y \
   python3-rosdep
 ```
 
-### 3. Create a workspace and clone
+### 3. Clone into a workspace
 
 The repository root becomes the workspace, so `src/` lands in the right place:
 
 ```bash
-git clone https://github.com/<your-username>/carebro.git ~/carebro_ws
+git clone https://github.com/vedant710/CAREBRO_.git ~/carebro_ws
 cd ~/carebro_ws
 ```
 
@@ -340,13 +359,13 @@ Make sure the workspace is sourced in every new terminal.
 **Simulation only** (robot in Gazebo, RViz, no navigation):
 
 ```bash
-ros2 launch carebro_bringup bringup.launch.py nav_mode:=sim world:=obstacles
+ros2 launch carebro_bringup bringup.launch.py nav_mode:=sim world:=house
 ```
 
 **Live SLAM + Nav2** (build a map while navigating):
 
 ```bash
-ros2 launch carebro_bringup bringup.launch.py nav_mode:=slam_nav world:=obstacles
+ros2 launch carebro_bringup bringup.launch.py nav_mode:=slam_nav world:=house
 ```
 
 **Navigate on a saved map** (AMCL + Nav2):
@@ -378,6 +397,8 @@ You can also launch the simulator alone, with a custom spawn pose:
 ```bash
 ros2 launch carebro_gazebo sim.launch.py world:=house x:=-3.0 y:=-1.0 yaw:=0.0
 ```
+
+The `house` world (rooms and furniture) is the most relevant one for assistive scenarios. `obstacles` is a simple arena for testing, and `warehouse` is a larger space.
 
 ---
 
@@ -509,7 +530,7 @@ Rebuild, drive a square, and compare raw odometry, the EKF and ground truth.
 
 **Known limitation:** the Gazebo IMU reports zero covariance, so the EKF trusts it completely. `imu_preprocessor_node` is the intended place to fix this; afterwards point `imu0` in `ekf.yaml` at `/imu/data`.
 
-> ⚠️ **Never feed `/ground_truth/odom` into SLAM, Nav2 or the EKF.** It is the answer key, not a sensor.
+> **Never feed `/ground_truth/odom` into SLAM, Nav2 or the EKF.** It is the answer key, not a sensor.
 
 ---
 
@@ -530,7 +551,7 @@ Typical workflow, using `object_detector_node` as an example:
        model_path: "models/yolov8n.onnx"
        confidence: 0.5
    ```
-4. Rebuild (not needed for Python edits with `--symlink-install`, only for new files or entry points) and run:
+4. Rebuild (only needed for new files or entry points when using `--symlink-install`) and run:
 
    ```bash
    ros2 launch carebro_bringup bringup.launch.py nav_mode:=sim ai:=true
@@ -544,7 +565,7 @@ Tips:
 
 - On CPU-only machines use a small model and process every Nth frame.
 - Handle both depth formats: `32FC1` metres (simulation) and `16UC1` millimetres (real RealSense).
-- Validate location names from an LLM against your known locations before sending Nav2 goals.
+- Validate location names from an LLM against your known locations before sending Nav2 goals. An assistive robot should never act on an unchecked model output.
 
 ---
 
@@ -590,21 +611,33 @@ ros2 topic echo /odometry/filtered --once
 
 ---
 
-## Project status
+## Roadmap
 
-| Component | Status |
-|---|---|
-| Robot model, worlds, controller | ✅ Working |
-| LiDAR, IMU, RGB-D camera, ground truth | ✅ Implemented |
-| `encoder_sim` | ✅ Implemented |
-| SLAM + Nav2 launch | ✅ Implemented |
-| `robot_localization` EKF config | ✅ Implemented |
-| `carebro_bringup` | ✅ Implemented |
-| Fusion nodes (5) | 🧩 Templates, contributions welcome |
-| Perception nodes (3) | 🧩 Templates, contributions welcome |
-| AI nodes (3) | 🧩 Templates, contributions welcome |
-| Jazzy / Gazebo Harmonic | ⚠️ Code path exists, untested |
-| Real hardware | 🔜 Planned |
+Planned work, roughly in order. Items are **not implemented yet**. Pick one and open an issue to say you're working on it.
+
+**Near term: finish the existing templates**
+- [ ] `imu_preprocessor_node`: bias removal and realistic covariances
+- [ ] `encoder_odometry_node` and `drift_evaluator_node`: odometry from ticks, drift metrics against ground truth
+- [ ] `obstacle_cloud_node`: detect low and overhanging obstacles the LiDAR misses, and feed them to the Nav2 costmap
+- [ ] `object_detector_node`: YOLO/ONNX detection of household objects
+
+**Assistive features**
+- [ ] Named locations in the home ("kitchen", "bedroom", "charging dock") and navigation to them
+- [ ] Natural-language and voice commands (`nl_command_node`)
+- [ ] "Go to the chair" style semantic navigation (`semantic_navigator_node`)
+- [ ] Fetch-and-carry tasks
+- [ ] Automatic docking and charging
+- [ ] Alerting a caregiver when help is needed
+- [ ] Accessible control options (for example switch, eye-gaze or simple mobile app)
+
+**Platform**
+- [ ] Safety layer: speed limits near people, emergency stop, watchdogs
+- [ ] Test the Jazzy / Gazebo Harmonic path
+- [ ] Continuous integration (build + launch smoke test)
+- [ ] Real-hardware bring-up guide and bill of materials
+- [ ] Optional manipulator arm
+
+Have an idea, especially from lived experience of disability or caregiving? Please open an issue. That input matters more than any single feature.
 
 ---
 
@@ -630,7 +663,22 @@ ros2 topic echo /odometry/filtered --once
 
 ## Contributing
 
-Contributions are very welcome. The easiest places to start are the template nodes in `carebro_sensor_fusion`, `carebro_perception` and `carebro_ai`.
+Contributions of every size are welcome: code, documentation, testing, ideas, and feedback from people who would actually use an assistive robot.
+
+**Good places to start:**
+
+| Area | Where | Difficulty |
+|---|---|---|
+| Clean up the IMU data | `carebro_sensor_fusion/imu_preprocessor_node.py` | Beginner |
+| Odometry from encoder ticks | `carebro_sensor_fusion/encoder_odometry_node.py` | Beginner |
+| Measure drift against ground truth | `carebro_sensor_fusion/drift_evaluator_node.py` | Beginner |
+| Nearest-obstacle distance from depth | `carebro_perception/depth_vision_node.py` | Beginner |
+| Detect objects with YOLO / ONNX | `carebro_ai/object_detector_node.py` | Intermediate |
+| Low-obstacle detection for Nav2 | `carebro_perception/obstacle_cloud_node.py` | Intermediate |
+| Natural-language commands | `carebro_ai/nl_command_node.py` | Intermediate |
+| Semantic navigation | `carebro_ai/semantic_navigator_node.py` | Advanced |
+
+**How to contribute:**
 
 1. Fork the repository and create a branch: `git checkout -b feature/my-feature`
 2. Build and test locally (see [Verifying your setup](#verifying-your-setup)).
@@ -639,15 +687,17 @@ Contributions are very welcome. The easiest places to start are the template nod
 
 Bug reports are most useful with your ROS distro, Gazebo version, the launch command you ran and the terminal output.
 
+Please be respectful and constructive. This project is meant to serve people, and the community around it should reflect that.
+
 ---
 
 ## License
 
-This project is released under the **MIT License** (see the `license` field in each `package.xml`). Add a `LICENSE` file at the repository root.
+Released under the **MIT License**. See [LICENSE](LICENSE).
 
-## Maintainer
+## Author
 
-Vedant Kulkarni, <vedantkulkarni252@gmail.com>
+Vedant Kulkarni ([@vedant710](https://github.com/vedant710))
 
 ## Acknowledgements
 
